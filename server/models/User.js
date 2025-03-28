@@ -8,7 +8,8 @@ const UserSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true, match: /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/ },
   avatar: { type: String, default: "" },
   password: { type: String, required: true },
-
+  friends: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+  friendRequests: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
   failedAttempts: { type: Number, default: 0 },
   lockUntil: { type: Date, default: null }, 
 });
