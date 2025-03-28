@@ -85,8 +85,8 @@ const sendMessage = () => {
         <div class="self-start" v-if="msg.sender !== userId">
           <img src="../assets/photo-1.jpeg" alt="" class="w-14 h-14 object-cover rounded-full border-2">
         </div>
-        <div :class="msg.sender === userId ? 'bg-sky-300 mr-2' : 'bg-slate-300 ml-2'" class="flex justify-end rounded-2xl max-w-2xl">
-          <p class="p-4 tracking-wide text-xl prose max-w-md font-exo">{{ msg.message }}</p>
+        <div :class="msg.sender === userId ? 'bg-sky-600 mr-2 ' : 'bg-gray-800 ml-2'" class="flex justify-end rounded-2xl max-w-2xl text-white saturate-200">
+          <p class="p-4 tracking-wide text-xl prose max-w-md  font-exo">{{ msg.message }}</p>
           <p class="self-end text-[10px] font-light font-exo p-2">{{ new Date(msg.updatedAt).toLocaleTimeString() }}</p>
         </div>
       </div>
