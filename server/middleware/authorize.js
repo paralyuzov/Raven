@@ -1,27 +1,17 @@
-function authorize(requiredRoles) {
-    return (req, res, next) => {
-      const token = req.cookies.authToken;
-      if (!token) return res.status(401).json({ error: "Unauthorized" });
-  
-      try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        req.user = decoded; 
-  
-        const userRoles = req.user.roles || [];
-        const isAuthorized = Array.isArray(requiredRoles)
-          ? requiredRoles.some((role) => userRoles.includes(role))
-          : userRoles.includes(requiredRoles);
-  
-        if (!isAuthorized) {
-          return res.status(403).json({ error: "Forbidden: Insufficient privileges" });
-        }
-  
+const User = require("../models/User");
+
+module.exports = async (req, res, next) => {
+    if (!req.cookies || !req.cookies.user) {
+        return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    try {
+        const user = await User.findById(req.cookies.user).select("-password");
+        if (!user) return res.status(401).json({ message: "User not found" });
+
+        req.user = user;
         next();
-      } catch (error) {
-        res.status(401).json({ error: "Invalid token" });
-      }
-    };
-  }
-  
-  module.exports = authorize;
-  
+    } catch (error) {
+        res.status(401).json({ message: "Invalid session" });
+    }
+};
