@@ -1,18 +1,16 @@
 <script setup>
 import { onBeforeMount, ref } from 'vue';
 import { useContactsStore } from '../stores/contactsStore';
-import { useAuthStore } from '../stores/authStore';
 import MessageView from './MessageView.vue';  
 
 const contactsStore = useContactsStore();
-const authStore = useAuthStore();
-const loggedInUser = authStore.user?.id;
 const users = ref([]);
 const selectedUser = ref(null);
 
 onBeforeMount(async () => {
   await contactsStore.getContacts();
-  users.value = contactsStore.contacts.filter(user => user._id !== loggedInUser);
+  users.value = contactsStore.contacts
+
 });
 
 
