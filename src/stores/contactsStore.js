@@ -13,8 +13,8 @@ export const useContactsStore = defineStore("contactsStore",{
             this.loading = true;
             this.error = null;
             try {
-               const response =  await axios.get("/users");
-               this.contacts = response.data;
+               const response =  await axios.get("users/friends");
+               this.contacts = response.data.friends || [];
             } catch (error) {
                 console.log(error);
             }
