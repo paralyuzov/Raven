@@ -1,5 +1,5 @@
 <script setup>
-import { onBeforeMount, ref } from 'vue';
+import { onBeforeMount, ref, watch } from 'vue';
 import { useContactsStore } from '../stores/contactsStore';
 import MessageView from './MessageView.vue';  
 
@@ -12,6 +12,10 @@ onBeforeMount(async () => {
   users.value = contactsStore.contacts
 
 });
+
+watch(() => contactsStore.contacts, (newContacts) => {
+  users.value = newContacts;
+}, { deep: true });
 
 
 const selectContact = (user) => {
