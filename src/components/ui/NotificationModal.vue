@@ -3,8 +3,12 @@ import { onMounted, ref } from 'vue';
 import { useContactsStore } from '../../stores/contactsStore';
 
 const props = defineProps({
+  show: {
+    type: Boolean,
+    required: true
+  },
   friendRequests: Array,
-  show: Boolean
+
 });
 
 const emit = defineEmits(['close'])
@@ -39,7 +43,7 @@ const declineRequest = (id) => {
 </script>
 
 <template>
-  <div v-if="show" class="fixed top-4 right-4  bg-opacity-50 flex justify-center items-center z-50">
+  <div v-if="show" class="fixed top-[49px] right-1  bg-opacity-50 flex justify-center items-center z-50">
     <div class="bg-slate-100 p-6 rounded-lg shadow-lg w-80 text-black">
       <h2 class="text-lg font-bold mb-4 text-start text-purple-800 font-orbitron tracking-widest">Notifications</h2>
 
