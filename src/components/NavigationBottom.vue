@@ -2,19 +2,25 @@
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { faHouse } from '@fortawesome/free-solid-svg-icons';
 import { faContactBook } from '@fortawesome/free-solid-svg-icons/faContactBook';
-import { faUser } from '@fortawesome/free-solid-svg-icons';
+import { faUser,faUsers } from '@fortawesome/free-solid-svg-icons';
 import { faBell } from '@fortawesome/free-solid-svg-icons';
 import { useAuthStore } from '../stores/authStore';
 import { ref,watch } from 'vue';
 import NotificationModal from './ui/NotificationModal.vue';
+import FindUsers from './findUsers.vue';
 
 
 const authStore = useAuthStore();
 const friendRequests = ref( authStore.user?.friendRequests || []);
 const showModal = ref(false);
+const showUserSearchModal = ref(false);
 const toggleModal = () => {
   showModal.value = !showModal.value;
 };
+
+const toggleUserSearch = () => {
+  showUserSearchModal.value = !showUserSearchModal.value;
+}
 
 watch(
   () => authStore.user?.friendRequests,
@@ -35,6 +41,9 @@ watch(
           <div class="bg-slate-600 w-16 h-16 flex justify-center items-center rounded-full hover:bg-violet-900 cursor-pointer hover:rotate-6 transition-all ease-in-out duration-500">
             <FontAwesomeIcon :icon="faHouse" class="text-2xl" />
           </div>
+          <div class="bg-slate-600 w-16 h-16 flex justify-center items-center rounded-full hover:bg-violet-900 cursor-pointer hover:rotate-6 transition-all ease-in-out duration-500 " @click="toggleUserSearch">
+            <FontAwesomeIcon :icon="faUsers" class="text-2xl" />
+          </div>
           <div class="bg-slate-600 w-16 h-16 flex justify-center items-center rounded-full hover:bg-violet-900 cursor-pointer hover:rotate-6 transition-all ease-in-out duration-500">
             <FontAwesomeIcon :icon="faContactBook" class="text-2xl" />
           </div>
@@ -52,10 +61,17 @@ watch(
       </div>
     </div>
   </nav>
+
+
   
   <NotificationModal
     :show="showModal" 
     :friendRequests="friendRequests" 
     @close="toggleModal"
+  />
+
+  <FindUsers
+    :show="showUserSearchModal" 
+    @close="toggleUserSearch"
   />
 </template>
