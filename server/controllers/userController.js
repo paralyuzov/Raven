@@ -91,7 +91,6 @@ exports.getFriends = async (req, res) => {
 exports.getUserById = async (req, res) => {
   try {
     const userId = req.params.id;
-    console.log(userId)
     const user = await User.findById(userId);
 
     if (!user) return res.status(404).json({ message: "User not found" });
@@ -101,3 +100,25 @@ exports.getUserById = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+exports.searchUser = async (req,res) => {
+  try {
+    const query = req.query.query?.trim();
+    if(!query) {
+      return res.status(400).json({message:"Search query is required."})
+    }
+    const searchRegex = new RegExp(query,'i');
+    const users = await User.find({
+      $or:[
+        {firstName:searchRegex},
+        {lastName:searchRegex},
+        {nickname:searchRegex}
+      ],
+    }).select('firstName lastName nickname avatar');
+    console.log(users)
+    return res.status(200).json(users);
+  } catch (error) {
+    console.log('Search error',error)
+    return res.status(500).json({message:"Server error while searching users"});
+  }
+}
