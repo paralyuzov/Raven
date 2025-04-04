@@ -24,7 +24,6 @@ export const useContactsStore = defineStore("contactsStore",{
             this.loading = true;
             this.error = null;
             try {
-                console.log(friendId)
                 await axios.post(`users/accept-request/${friendId}`);
 
                 const authStore = useAuthStore();
@@ -38,7 +37,21 @@ export const useContactsStore = defineStore("contactsStore",{
                 this.loading = false;
             }
         },
+        async sendFriendReuest(friendId) {
+            this.loading = true;
+            this.error = null;
+            try {
+                await axios.post(`users/friend-request/${friendId}`)
+            } catch (error) {
+                this.error = error.response?.data?.message || "Failed to send friend request."
+            } finally {
+                this.loading = false;
+            }
+
+        },
         async fetchUsernameById(userId) {
+            this.loading = true;
+            this.error = null;
             try {
               const response = await axios.get(`users/user/${userId}`);
               return response.data;
@@ -47,5 +60,26 @@ export const useContactsStore = defineStore("contactsStore",{
               return null;
             }
           },
+          async findUsers(query) {
+            this.loading = true;
+            this.error = null;
+          
+            try {
+              const trimmedQuery = query?.trim();
+              if (!trimmedQuery) {
+                this.error = "Search query is empty.";
+                return [];
+              }
+          
+              const response = await axios.get(`users/search?query=${trimmedQuery}`);
+              return response.data || [];
+            } catch (error) {
+              this.error = error.response?.data?.message || "Failed to search users.";
+              console.error(error);
+              return [];
+            } finally {
+              this.loading = false;
+            }
+          }
     }
 })
