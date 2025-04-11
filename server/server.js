@@ -62,15 +62,14 @@ io.on("connection", (socket) => {
         io.to(recipientSocket).emit("receive_message", {
           ...message,
           _id: newMessage._id,
-          seen: false
+          seen: false,
+          timestamp: new Date()
         });
 
         const unreadMessages = await Message.find({ 
           recipient: message.recipient, 
-          sender: message.sender,
           seen: false 
         });
-        
         io.to(recipientSocket).emit("unread_messages", unreadMessages);
       }
     } catch (err) {
@@ -82,8 +81,13 @@ io.on("connection", (socket) => {
     const { senderId, recipientId, socketId } = data;
 
     try {
+
       await Message.updateMany(
-        { sender: senderId, recipient: recipientId, seen: false },
+        { 
+          sender: senderId, 
+          recipient: recipientId, 
+          seen: false 
+        },
         { $set: { seen: true } }
       );
       
@@ -91,10 +95,33 @@ io.on("connection", (socket) => {
       
       const senderSocket = users[senderId];
       if (senderSocket) {
-        io.to(senderSocket).emit("messages_marked_as_seen", { senderId: recipientId });
+        io.to(senderSocket).emit("messages_marked_as_seen", { 
+          senderId: recipientId,
+          seen: true 
+        });
       }
+      
+      const unreadMessages = await Message.find({ 
+        recipient: recipientId, 
+        seen: false 
+      });
+      
+      io.to(socketId).emit("unread_messages", unreadMessages);
     } catch (err) {
       console.error("Error marking messages as seen:", err);
+    }
+  });
+
+  socket.on("get_unread_messages", async (userId) => {
+    try {
+      const unreadMessages = await Message.find({ 
+        recipient: userId, 
+        seen: false 
+      });
+      
+      io.to(socket.id).emit("unread_messages", unreadMessages);
+    } catch (err) {
+      console.error("Error fetching unread messages:", err);
     }
   });
 

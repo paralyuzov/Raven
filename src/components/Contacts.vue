@@ -15,16 +15,27 @@ const authStore = useAuthStore();
 socket.emit("join", authStore.user.id);
 
 onMounted(() => {
+  socket.emit("get_unread_messages", authStore.user.id);
+
   socket.on("unread_messages", (messages) => {
+    const messagesBySender = {};
     messages.forEach((msg) => {
-      const senderId = msg.sender;
-      unreadMessages[senderId] = messages.filter(m => m.sender === senderId).length;
+      if (!messagesBySender[msg.sender]) {
+        messagesBySender[msg.sender] = 0;
+      }
+      messagesBySender[msg.sender]++;
+    });
+
+    Object.keys(messagesBySender).forEach(senderId => {
+      if (senderId !== selectedUser.value?._id) {
+        unreadMessages[senderId] = messagesBySender[senderId];
+      }
     });
   });
 
   socket.on("receive_message", (message) => {
     const senderId = message.sender;
-    if (selectedUser.value?._id !== senderId) {
+    if (senderId !== authStore.user.id && selectedUser.value?._id !== senderId) {
       unreadMessages[senderId] = (unreadMessages[senderId] || 0) + 1;
     }
   });
@@ -45,8 +56,8 @@ watch(() => contactsStore.contacts, (newContacts) => {
 
 const selectContact = (user) => {
   if (selectedUser.value?._id === user._id) return;
-  selectedUser.value = user;
   
+  selectedUser.value = user;
   unreadMessages[user._id] = 0;
 
   socket.emit("mark_as_seen", { 
