@@ -33,14 +33,33 @@ const messagesContainer = ref(null);
 const { loadingMessages: socketLoadingMessages, sendMessage } = useChatSocket(userId, recipientId.value, messages);
 
 const fetchMessages = async () => {
-  loadingMessages.value = true;
-  await messageStore.fetchMessages(userId, recipientId.value);
-  messages.value = [...messageStore.messages];
-  loadingMessages.value = false;
+  try {
+    loadingMessages.value = true;
+    await messageStore.fetchMessages(userId, recipientId.value);
+    messages.value = [...messageStore.messages];
+  } catch (error) {
+    console.error('Error fetching messages:', error);
+  } finally {
+    loadingMessages.value = false;
+    nextTick(() => {
+      scrollToBottom(true);
+    });
+  }
 };
 
-onMounted(() => {
-  fetchMessages();
+const scrollToBottom = (immediate = false) => {
+  nextTick(() => {
+    if (messagesContainer.value) {
+      messagesContainer.value.scrollTo({
+        top: messagesContainer.value.scrollHeight,
+        behavior: immediate ? 'auto' : 'smooth'
+      });
+    }
+  });
+};
+
+onMounted(async () => {
+  await fetchMessages();
   nextTick(() => {
     if (inputRef.value) {
       inputRef.value.focus();
@@ -51,17 +70,6 @@ onMounted(() => {
 onUnmounted(() => {
   socket.off('receive_message'); 
 });
-
-const scrollToBottom = () => {
-  nextTick(() => {
-    if (messagesContainer.value) {
-      messagesContainer.value.scrollTo({
-        top: messagesContainer.value.scrollHeight,
-        behavior: 'smooth'
-      });
-    }
-  });
-};
 
 watchEffect(() => {
   if (messageText.value === '') {
@@ -82,7 +90,7 @@ watchEffect(() => {
 });
 
 watchEffect(() => {
-  if (messages.value.length) {
+  if (messages.value.length && !loadingMessages.value) {
     scrollToBottom();
   }
 });
@@ -146,7 +154,13 @@ const sendMessageHandler = () => {
       <FontAwesomeIcon :icon="faArrowCircleDown" class="text-purple-700"></FontAwesomeIcon>
     </div>
 
-    <div ref="messagesContainer" v-if="!loadingMessages" class="flex-1 overflow-y-auto my-10 mx-10 space-y-6 pr-2 pb-20">
+    <div v-if="loadingMessages" class="flex-1 flex items-center justify-center">
+    <div class="flex flex-col items-center space-y-4">
+      <div class="animate-spin rounded-full h-16 w-16 border-t-6 border-b-6 border-purple-500"></div>
+    </div>
+  </div>
+
+    <div ref="messagesContainer" v-else class="flex-1 overflow-y-auto my-10 mx-10 space-y-6 pr-2 pb-20">
       <div v-for="msg in messages" :key="msg._id || msg.timestamp" :class="msg.sender === userId ? 'flex justify-end' : 'flex justify-start'">
         <div class="self-start" v-if="msg.sender !== userId">
           <img src="../assets/photo-1.jpeg" alt="" class="w-14 h-14 object-cover rounded-full border-2">
