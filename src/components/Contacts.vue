@@ -10,7 +10,7 @@ const users = ref([]);
 const selectedUser = ref(null);
 const unreadMessages = reactive({});
 const authStore = useAuthStore();
-
+const onlineUsers = ref({});
 
 socket.emit("join", authStore.user.id);
 
@@ -43,6 +43,12 @@ onMounted(() => {
   socket.on("messages_marked_as_seen", ({ senderId }) => {
     unreadMessages[senderId] = 0;
   });
+
+  socket.on("user_status", (users) => {
+    onlineUsers.value = users;
+  });
+
+  socket.emit("get_online_users");
 });
 
 onBeforeMount(async () => {
@@ -71,6 +77,7 @@ onUnmounted(() => {
   socket.off("receive_message");
   socket.off("unread_messages");
   socket.off("messages_marked_as_seen");
+  socket.off("user_status");
 });
 </script>
 
@@ -86,7 +93,10 @@ onUnmounted(() => {
         class="relative flex items-center hover:shadow-lg shadow-fuchsia-900 hover:translate-x-2 duration-150 transition-all ease-in-out space-x-3 px-4 py-3 text-white bg-slate-700 rounded-2xl mx-4 my-2 hover:bg-purple-800 cursor-pointer"
         @click="selectContact(user)"
       >
-        <div class="absolute top-4 right-0 w-3 h-3 bg-green-400 rounded-full transform translate-x-1 -translate-y-1"></div>
+        <div 
+          class="absolute top-4 right-0 w-3 h-3 rounded-full transform translate-x-1 -translate-y-1 transition-colors duration-300"
+          :class="onlineUsers[user._id] ? 'bg-green-400' : 'bg-gray-400'"
+        ></div>
         
         <div>
           <img src="../assets/photo-1.jpeg" alt="" class="h-14 w-14 rounded-full object-fill">

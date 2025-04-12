@@ -23,6 +23,7 @@ const io = socketIo(server, {
 });
 
 const users = {}; 
+const onlineUsers = {};
 
 app.use(bodyParser.json());
 app.use(cookieParser());
@@ -33,6 +34,10 @@ io.on("connection", (socket) => {
 
   socket.on("join", async (userId) => {
     users[userId] = socket.id;
+    onlineUsers[userId] = true;
+    
+    io.emit("user_status", onlineUsers);
+    
     console.log(`${userId} has joined with socket id: ${socket.id}`);
 
     try {
@@ -125,10 +130,16 @@ io.on("connection", (socket) => {
     }
   });
 
+  socket.on("get_online_users", () => {
+    io.to(socket.id).emit("user_status", onlineUsers);
+  });
+
   socket.on("disconnect", () => {
     Object.keys(users).forEach((userId) => {
       if (users[userId] === socket.id) {
         delete users[userId];
+        delete onlineUsers[userId];
+        io.emit("user_status", onlineUsers);
       }
     });
     console.log("User disconnected:", socket.id);
