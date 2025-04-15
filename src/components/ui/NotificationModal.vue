@@ -4,7 +4,6 @@ import { useContactsStore } from '../../stores/contactsStore';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { faClose } from "@fortawesome/free-solid-svg-icons";
 import socket from '../../plugins/socket';
-import { useAuthStore } from '../../stores/authStore';
 
 const props = defineProps({
   show: {
@@ -15,7 +14,6 @@ const props = defineProps({
 
 const emit = defineEmits(['close']);
 const contactsStore = useContactsStore();
-const authStore = useAuthStore();
 
 watch(() => props.show, (newValue) => {
   if (newValue) {
@@ -42,12 +40,17 @@ const acceptRequest = async (requestId) => {
   }
 };
 
-const closeModal = () => {
-  emit('close');
+const declineRequest = async (requestId) => {
+  try {
+    await contactsStore.declineFriendRequest(requestId);
+    emit('close');
+  } catch (error) {
+    console.error('Error declining friend request:', error);
+  }
 };
 
-const declineRequest = (id) => {
-  
+const closeModal = () => {
+  emit('close');
 };
 
 </script>
