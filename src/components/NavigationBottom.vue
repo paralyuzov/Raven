@@ -5,10 +5,10 @@ import { faContactBook } from '@fortawesome/free-solid-svg-icons/faContactBook';
 import { faUser,faUsers } from '@fortawesome/free-solid-svg-icons';
 import { faBell } from '@fortawesome/free-solid-svg-icons';
 import { useAuthStore } from '../stores/authStore';
-import { ref,watch } from 'vue';
+import { ref,watch, onMounted } from 'vue';
 import NotificationModal from './ui/NotificationModal.vue';
 import FindUsers from './findUsers.vue';
-
+import socket from '../plugins/socket';
 
 const authStore = useAuthStore();
 const friendRequests = ref( authStore.user?.friendRequests || []);
@@ -22,6 +22,14 @@ const toggleUserSearch = () => {
   showUserSearchModal.value = !showUserSearchModal.value;
 }
 
+onMounted(() => {
+  socket.on("friend_request_received", (request) => {
+    if (!friendRequests.value.includes(request.id)) {
+      friendRequests.value.push(request.id);
+    }
+  });
+});
+
 watch(
   () => authStore.user?.friendRequests,
   (newFriendRequests) => {
@@ -29,7 +37,7 @@ watch(
       friendRequests.value = newFriendRequests;
     }
   },
-  { deep: true }
+  { immediate: true, deep: true }
 );
 
 </script>
