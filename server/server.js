@@ -10,6 +10,8 @@ const authRoutes = require("./routes/auth");
 const usersRoute = require('./routes/users');
 const messagesRoute = require('./routes/messages')
 const Message = require("./models/Message");
+const User = require("./models/User");
+const { users, onlineUsers } = require('./state/sharedState');
 
 dotenv.config();
 
@@ -22,12 +24,10 @@ const io = socketIo(server, {
   },
 });
 
-const users = {}; 
-const onlineUsers = {};
-
 app.use(bodyParser.json());
 app.use(cookieParser());
 app.use(cors({ origin: "http://localhost:5173", credentials: true }));
+app.set('io',io)
 
 io.on("connection", (socket) => {
   console.log("User connected:", socket.id);
