@@ -4,147 +4,22 @@ const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
 const cors = require("cors");
-const http = require("http"); 
-const socketIo = require("socket.io"); 
+const http = require("http");
 const authRoutes = require("./routes/auth");
 const usersRoute = require('./routes/users');
-const messagesRoute = require('./routes/messages')
-const Message = require("./models/Message");
-const User = require("./models/User");
-const { users, onlineUsers } = require('./state/sharedState');
+const messagesRoute = require('./routes/messages');
+const setupSocket = require('./config/socketSetup');
 
 dotenv.config();
 
 const app = express();
 const server = http.createServer(app);
-const io = socketIo(server, { 
-  cors: {
-    origin: "http://localhost:5173",
-    methods: ["GET", "POST"],
-  },
-});
 
 app.use(bodyParser.json());
 app.use(cookieParser());
 app.use(cors({ origin: "http://localhost:5173", credentials: true }));
-app.set('io',io)
 
-io.on("connection", (socket) => {
-  console.log("User connected:", socket.id);
-
-  socket.on("join", async (userId) => {
-    users[userId] = socket.id;
-    onlineUsers[userId] = true;
-    
-    io.emit("user_status", onlineUsers);
-    
-    console.log(`${userId} has joined with socket id: ${socket.id}`);
-
-    try {
-        const unreadMessages = await Message.find({ recipient: userId, seen: false });
-        if (unreadMessages.length > 0) {
-            io.to(socket.id).emit("unread_messages", unreadMessages);
-        }
-    } catch (err) {
-        console.error("Error fetching unread messages:", err);
-    }
-});
-
-  socket.on("private_message", async (message) => {
-    const recipientSocket = users[message.recipient];
-
-    try {
-      const newMessage = new Message({
-        sender: message.sender,
-        recipient: message.recipient,
-        message: message.message,
-        type: message.type || 'text',
-        seen: false,
-      });
-      await newMessage.save();
-
-      if (recipientSocket) {
-        io.to(recipientSocket).emit("receive_message", {
-          ...message,
-          _id: newMessage._id,
-          seen: false,
-          timestamp: new Date()
-        });
-
-        const unreadMessages = await Message.find({ 
-          recipient: message.recipient, 
-          seen: false 
-        });
-        io.to(recipientSocket).emit("unread_messages", unreadMessages);
-      }
-    } catch (err) {
-      console.error("Error saving message:", err);
-    }
-  });
-
-  socket.on("mark_as_seen", async (data) => {
-    const { senderId, recipientId, socketId } = data;
-
-    try {
-
-      await Message.updateMany(
-        { 
-          sender: senderId, 
-          recipient: recipientId, 
-          seen: false 
-        },
-        { $set: { seen: true } }
-      );
-      
-      io.to(socketId).emit("messages_marked_as_seen", { senderId });
-      
-      const senderSocket = users[senderId];
-      if (senderSocket) {
-        io.to(senderSocket).emit("messages_marked_as_seen", { 
-          senderId: recipientId,
-          seen: true 
-        });
-      }
-      
-      const unreadMessages = await Message.find({ 
-        recipient: recipientId, 
-        seen: false 
-      });
-      
-      io.to(socketId).emit("unread_messages", unreadMessages);
-    } catch (err) {
-      console.error("Error marking messages as seen:", err);
-    }
-  });
-
-  socket.on("get_unread_messages", async (userId) => {
-    try {
-      const unreadMessages = await Message.find({ 
-        recipient: userId, 
-        seen: false 
-      });
-      
-      io.to(socket.id).emit("unread_messages", unreadMessages);
-    } catch (err) {
-      console.error("Error fetching unread messages:", err);
-    }
-  });
-
-  socket.on("get_online_users", () => {
-    io.to(socket.id).emit("user_status", onlineUsers);
-  });
-
-  socket.on("disconnect", () => {
-    Object.keys(users).forEach((userId) => {
-      if (users[userId] === socket.id) {
-        delete users[userId];
-        delete onlineUsers[userId];
-        io.emit("user_status", onlineUsers);
-      }
-    });
-    console.log("User disconnected:", socket.id);
-  });
-});
+const io = setupSocket(server, app);
 
 (async () => {
   try {
@@ -157,8 +32,8 @@ io.on("connection", (socket) => {
 })();
 
 app.use("/api/auth", authRoutes);
-app.use('/api/users',usersRoute);
-app.use('/api/messages',messagesRoute);
+app.use('/api/users', usersRoute);
+app.use('/api/messages', messagesRoute);
 
 const PORT = process.env.PORT || 3002;
 server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
