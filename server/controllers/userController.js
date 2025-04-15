@@ -138,6 +138,30 @@ exports.getUserById = async (req, res) => {
   }
 };
 
+exports.declineFriendRequest = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const friendId = req.params.id;
+
+        const user = await User.findById(userId);
+
+        if (!user) return res.status(404).json({ message: "User not found" });
+
+        if (!user.friendRequests.includes(friendId)) {
+            return res.status(400).json({ message: "No friend request found" });
+        }
+
+        user.friendRequests = user.friendRequests.filter(
+            (id) => id.toString() !== friendId
+        );
+        await user.save();
+
+        res.json({ message: "Friend request declined!" });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+}
+
 exports.searchUser = async (req, res) => {
     try {
         const query = req.query.query?.trim();
