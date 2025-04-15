@@ -64,6 +64,23 @@ export const useContactsStore = defineStore("contactsStore", {
                 this.loading = false;
             }
         },
+        async declineFriendRequest(friendId) {
+            this.loading = true;
+            this.error = null;
+            try {
+                await axios.post(`users/decline-request/${friendId}`);  
+                const authStore = useAuthStore();
+                this.pendingRequests = this.pendingRequests.filter(req => req.id !== friendId);
+                authStore.user.friendRequests = authStore.user.friendRequests.filter(id => id !== friendId);
+                await this.getContacts();
+                await this.fetchRequestUsernames();
+            } catch (error) {
+                this.error = error.response?.data?.message || "Failed to decline friend request.";
+                throw error;
+            } finally {
+                this.loading = false;
+            }
+        },
         async fetchUsernameById(userId) {
             this.loading = true;
             this.error = null;
