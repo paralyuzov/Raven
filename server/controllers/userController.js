@@ -1,23 +1,60 @@
 const User = require("../models/User");
+const {users} = require("../state/sharedState");
 
 exports.sendFriendRequest = async (req, res) => {
-  try {
-    const senderId = req.user.id;
-    const receiverId = req.params.id;
-    const receiver = await User.findById(receiverId);
+    try {
+        const senderId = req.user.id;
+        const receiverId = req.params.id;
 
-    if (!receiver) return res.status(404).json({ message: "User not found" });
-    if (receiver.friendRequests.includes(senderId)) {
-      return res.status(400).json({ message: "Request already sent" });
+        if (!senderId || !receiverId) {
+            return res.status(400).json({ message: "Invalid sender or receiver ID" });
+        }
+
+        if (senderId === receiverId) {
+            return res.status(400).json({ message: "Cannot send friend request to yourself" });
+        }
+
+        const receiver = await User.findById(receiverId);
+        const sender = await User.findById(senderId);
+
+        if (!receiver || !sender) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        if (receiver.friends.includes(senderId)) {
+            return res.status(400).json({ message: "Users are already friends" });
+        }
+
+        if (receiver.friendRequests.includes(senderId)) {
+            return res.status(400).json({ message: "Friend request already sent" });
+        }
+
+        receiver.friendRequests.push(senderId);
+        await receiver.save();
+
+        const io = req.app.get('io');
+        const receiverSocket = users[receiverId]; 
+
+        if (receiverSocket) {
+            io.to(receiverSocket).emit("friend_request_received", { 
+                id: senderId,
+                firstName: sender.firstName,
+                lastName: sender.lastName
+            });
+        }
+
+        res.status(200).json({ 
+            message: "Friend request sent successfully!",
+            request: {
+                id: senderId,
+                firstName: sender.firstName,
+                lastName: sender.lastName
+            }
+        });
+    } catch (error) {
+        console.error("Send friend request error:", error);
+        res.status(500).json({ message: "Server error while sending friend request", error: error.message });
     }
-
-    receiver.friendRequests.push(senderId);
-    await receiver.save();
-
-    res.json({ message: "Friend request sent!" });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
 };
 
 exports.acceptFriendRequest = async (req, res) => {
@@ -101,24 +138,31 @@ exports.getUserById = async (req, res) => {
   }
 };
 
-exports.searchUser = async (req,res) => {
-  try {
-    const query = req.query.query?.trim();
-    if(!query) {
-      return res.status(400).json({message:"Search query is required."})
+exports.searchUser = async (req, res) => {
+    try {
+        const query = req.query.query?.trim();
+        const currentUserId = req.user.id;
+        
+        if (!query) {
+            return res.status(400).json({ message: "Search query is required." });
+        }
+        
+        const searchRegex = new RegExp(query, 'i');
+        const users = await User.find({
+            $and: [
+                {
+                    $or: [
+                        { firstName: searchRegex },
+                        { lastName: searchRegex }
+                    ]
+                },
+                { _id: { $ne: currentUserId } }
+            ]
+        }).select('firstName lastName _id');
+        
+        return res.status(200).json(users);
+    } catch (error) {
+        console.error('Search error:', error);
+        return res.status(500).json({ message: "Server error while searching users" });
     }
-    const searchRegex = new RegExp(query,'i');
-    const users = await User.find({
-      $or:[
-        {firstName:searchRegex},
-        {lastName:searchRegex},
-        {nickname:searchRegex}
-      ],
-    }).select('firstName lastName nickname avatar');
-    console.log(users)
-    return res.status(200).json(users);
-  } catch (error) {
-    console.log('Search error',error)
-    return res.status(500).json({message:"Server error while searching users"});
-  }
-}
+};
