@@ -9,6 +9,6 @@ router.post("/accept-request/:id", auth, acceptFriendRequest);
 router.delete("/remove-friend/:id", auth, removeFriend);
 router.get("/friends",auth,getFriends)
 router.get("/user/:id",getUserById)
-router.get("/search",searchUser)
+router.get("/search",auth,searchUser)
 
 module.exports = router;
