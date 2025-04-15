@@ -2,6 +2,8 @@
 import { ref } from "vue";
 import InputField from "./ui/InputField.vue";
 import { useContactsStore } from "../stores/contactsStore";
+import { useAuthStore } from "../stores/authStore";
+import socket from '../plugins/socket';
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { faSearch, faUserPlus, faClose } from "@fortawesome/free-solid-svg-icons";
 
@@ -15,16 +17,28 @@ const props = defineProps({
 const emit = defineEmits(["close"]);
 
 const contactStore = useContactsStore();
+const authStore = useAuthStore();
 const users = ref([]);
 const searchQuery = ref("");
 
 const searchUsers = async () => {
-  users.value = await contactStore.findUsers(searchQuery.value);
+    try {
+        if (!searchQuery.value.trim()) {
+            return;
+        }
+        users.value = await contactStore.findUsers(searchQuery.value);
+    } catch (error) {
+        console.error('Search error:', error);
+    }
 };
 
 const friendRequest = async (friendId) => {
-  await contactStore.sendFriendReuest(friendId);
-}
+    try {
+        await contactStore.sendFriendRequest(friendId);
+    } catch (error) {
+        console.error('Friend request error:', error);
+    }
+};
 
 const closeModal = () => {
   emit("close");
