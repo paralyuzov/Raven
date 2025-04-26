@@ -9,7 +9,9 @@ import { ref,watch, onMounted } from 'vue';
 import NotificationModal from './ui/NotificationModal.vue';
 import FindUsers from './findUsers.vue';
 import socket from '../plugins/socket';
+import { useRouter } from 'vue-router';
 
+const router = useRouter();
 const authStore = useAuthStore();
 const friendRequests = ref( authStore.user?.friendRequests || []);
 const showModal = ref(false);
@@ -21,6 +23,10 @@ const toggleModal = () => {
 const toggleUserSearch = () => {
   showUserSearchModal.value = !showUserSearchModal.value;
 }
+
+const navigateToMessages = () => {
+  router.push({ name: 'messages' });
+};
 
 onMounted(() => {
   socket.on("friend_request_received", (request) => {
@@ -52,7 +58,7 @@ watch(
           <div class="bg-slate-600 w-16 h-16 flex justify-center items-center rounded-full hover:bg-violet-900 cursor-pointer hover:rotate-6 transition-all ease-in-out duration-500 " @click="toggleUserSearch">
             <FontAwesomeIcon :icon="faUsers" class="text-2xl" />
           </div>
-          <div class="bg-slate-600 w-16 h-16 flex justify-center items-center rounded-full hover:bg-violet-900 cursor-pointer hover:rotate-6 transition-all ease-in-out duration-500">
+          <div @click="navigateToMessages" class="bg-slate-600 w-16 h-16 flex justify-center items-center rounded-full hover:bg-violet-900 cursor-pointer hover:rotate-6 transition-all ease-in-out duration-500">
             <FontAwesomeIcon :icon="faContactBook" class="text-2xl" />
           </div>
           <div class="bg-slate-600 w-16 h-16 flex justify-center items-center rounded-full hover:bg-violet-900 cursor-pointer hover:rotate-6 transition-all ease-in-out duration-500">

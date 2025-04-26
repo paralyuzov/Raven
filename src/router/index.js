@@ -6,7 +6,7 @@ import ChatPage from "../views/ChatPage.vue";
 const routes = [
   { path: "/", component: RegistrationPage },
   { path: "/login", component: LoginPage },
-  { path: "/messages", component: ChatPage },
+  { path: "/messages",name:"messages", component: ChatPage },
 ];
 
 const router = createRouter({
