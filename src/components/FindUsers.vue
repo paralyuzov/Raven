@@ -2,8 +2,6 @@
 import { ref } from "vue";
 import InputField from "./ui/InputField.vue";
 import { useContactsStore } from "../stores/contactsStore";
-import { useAuthStore } from "../stores/authStore";
-import socket from '../plugins/socket';
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { faSearch, faUserPlus, faClose } from "@fortawesome/free-solid-svg-icons";
 
@@ -17,7 +15,6 @@ const props = defineProps({
 const emit = defineEmits(["close"]);
 
 const contactStore = useContactsStore();
-const authStore = useAuthStore();
 const users = ref([]);
 const searchQuery = ref("");
 
