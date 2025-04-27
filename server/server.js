@@ -9,6 +9,7 @@ const authRoutes = require("./routes/auth");
 const usersRoute = require('./routes/users');
 const messagesRoute = require('./routes/messages');
 const setupSocket = require('./config/socketSetup');
+const path = require('path');
 
 dotenv.config();
 
@@ -18,6 +19,7 @@ const server = http.createServer(app);
 app.use(bodyParser.json());
 app.use(cookieParser());
 app.use(cors({ origin: "http://localhost:5173", credentials: true }));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 const io = setupSocket(server, app);
 
