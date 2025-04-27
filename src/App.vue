@@ -1,6 +1,4 @@
 <script setup>
-import Contacts from './components/Contacts.vue';
-import MessageView from './components/MessageView.vue';
 import NavigationBottom from './components/NavigationBottom.vue';
 
 </script>
