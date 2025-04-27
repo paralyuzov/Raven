@@ -40,6 +40,33 @@ export const useAuthStore = defineStore("authStore", {
     logoutUser() {
       this.user = null;
     },
+
+    async uploadAvatar(avatarFile) {
+      this.loading = true;
+      this.error = null;
+      
+      try {
+        const formData = new FormData();
+        formData.append('avatar', avatarFile);
+        
+        const response = await axios.post('/users/upload-avatar', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        });
+        
+        if (this.user) {
+          this.user.avatar = response.data.avatarUrl;
+        }
+        
+        return response.data;
+      } catch (error) {
+        this.error = error.response?.data?.error || "Failed to upload avatar";
+        throw this.error;
+      } finally {
+        this.loading = false;
+      }
+    }
   },
   persist: {
     key: "auth", 
