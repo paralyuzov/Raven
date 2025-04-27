@@ -9,6 +9,7 @@ import EmojiPicker from 'vue3-emoji-picker';
 import 'vue3-emoji-picker/css';
 import GiphySearch from './ui/GiphySearch.vue';
 import socket from '../plugins/socket'
+import Avatar from './ui/Avatar.vue';
 
 const props = defineProps({
   recipient: {
@@ -163,7 +164,7 @@ const sendMessageHandler = () => {
     <div ref="messagesContainer" v-else class="flex-1 overflow-y-auto my-10 mx-10 space-y-6 pr-2 pb-20">
       <div v-for="msg in messages" :key="msg._id || msg.timestamp" :class="msg.sender === userId ? 'flex justify-end' : 'flex justify-start'">
         <div class="self-start" v-if="msg.sender !== userId">
-          <img src="../assets/photo-1.jpeg" alt="" class="w-14 h-14 object-cover rounded-full border-2">
+         <Avatar :src="props.recipient.avatar" :alt="`${props.recipient.firstName}'s avatar`" size="sm" class="h-10 w-10" />
         </div>
         <div :class="msg.sender === userId ? 'bg-sky-600 mr-2 ' : 'bg-gray-800 ml-2'" class="flex justify-end rounded-2xl max-w-2xl text-white saturate-200">
           <div v-if="msg.type === 'gif' || msg.message.includes('giphy.com')" class="relative">

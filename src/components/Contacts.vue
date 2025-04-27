@@ -4,6 +4,7 @@ import { useContactsStore } from '../stores/contactsStore';
 import MessageView from './MessageView.vue'; 
 import socket from '../plugins/socket';
 import { useAuthStore } from '../stores/authStore';
+import Avatar from './ui/Avatar.vue';
 
 const contactsStore = useContactsStore();
 const users = ref([]);
@@ -91,6 +92,7 @@ onUnmounted(() => {
       <div 
         v-for="user in users" :key="user._id" 
         class="relative flex items-center hover:shadow-lg shadow-fuchsia-900 hover:translate-x-2 duration-150 transition-all ease-in-out space-x-3 px-4 py-3 text-white bg-slate-700 rounded-2xl mx-4 my-2 hover:bg-purple-800 cursor-pointer"
+        :class="{ 'bg-purple-700': selectedUser?._id === user._id }"
         @click="selectContact(user)"
       >
         <div 
@@ -99,7 +101,12 @@ onUnmounted(() => {
         ></div>
         
         <div>
-          <img src="../assets/photo-1.jpeg" alt="" class="h-14 w-14 rounded-full object-fill">
+          <Avatar 
+            :src="user.avatar" 
+            :alt="`${user.firstName}'s avatar`"
+            size="sm" 
+            class="h-14 w-14"
+          />
         </div>
 
         <p class="font-mono tracking-normal text-sm">{{ user.firstName }} {{ user.lastName }}</p>
