@@ -1,29 +1,34 @@
 const mongoose = require("mongoose");
 
 const MessageSchema = new mongoose.Schema(
-    {
-      sender: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-        required: true,
-      },
-      recipient: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-        required: true,
-        index: true, // Ensures efficient querying for recipient's unread messages
-      },
-      message: {
-        type: String,
-        required: true,
-      },
-      seen: {
-        type: Boolean,
-        default: false, // Tracks whether the message has been read
-        index: true, // Improves query performance when fetching unread messages
-      }
+  {
+    sender: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
     },
-    { timestamps: true }
+    recipient: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+      index: true,
+    },
+    message: {
+      type: String,
+      required: true,
+    },
+    type: {
+      type: String,
+      enum: ["text", "image", "video", "gif", "audio", "file"],
+      default: "text",
+    },
+    seen: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
+  },
+  { timestamps: true }
 );
 
 const Message = mongoose.model("Message", MessageSchema);
