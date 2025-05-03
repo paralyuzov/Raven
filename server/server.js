@@ -10,6 +10,8 @@ const usersRoute = require('./routes/users');
 const messagesRoute = require('./routes/messages');
 const setupSocket = require('./config/socketSetup');
 const path = require('path');
+const mediaRoute = require('./routes/media');
+
 
 dotenv.config();
 
@@ -36,6 +38,7 @@ const io = setupSocket(server, app);
 app.use("/api/auth", authRoutes);
 app.use('/api/users', usersRoute);
 app.use('/api/messages', messagesRoute);
+app.use('/api/media', mediaRoute);
 
 const PORT = process.env.PORT || 3002;
 server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
