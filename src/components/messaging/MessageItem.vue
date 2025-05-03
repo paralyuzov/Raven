@@ -1,6 +1,7 @@
 <script setup>
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import Avatar from '../ui/Avatar.vue';
+import ImagePreviewModal from '../ui/ImagePreviewModal.vue';
 
 const props = defineProps({
   message: Object,
@@ -9,6 +10,9 @@ const props = defineProps({
 });
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3002';
+
+const showImagePreview = ref(false);
+const previewImageUrl = ref('');
 
 const isOwnMessage = computed(() => props.message.sender === props.userId);
 const messageTime = computed(() => new Date(props.message.updatedAt).toLocaleTimeString());
@@ -28,6 +32,11 @@ const mediaSource = computed(() => {
   
   return `${API_BASE_URL}${props.message.message}`;
 });
+
+const openImagePreview = (url) => {
+  previewImageUrl.value = url;
+  showImagePreview.value = true;
+};
 </script>
 
 <template>
@@ -41,9 +50,11 @@ const mediaSource = computed(() => {
          
       <div v-if="isMedia" class="relative">
         <img v-if="message.type === 'gif' || message.message?.includes('giphy.com')" 
-             :src="mediaSource" alt="GIF" class="max-w-xs rounded-lg">
+             :src="mediaSource" alt="GIF" class="max-w-xs rounded-lg cursor-zoom-in"
+             @click="openImagePreview(mediaSource)">
         <img v-else-if="message.type === 'image'" 
-             :src="mediaSource" alt="Image" class="max-w-xs rounded-lg">
+             :src="mediaSource" alt="Image" class="max-w-xs rounded-lg cursor-zoom-in"
+             @click="openImagePreview(mediaSource)">
         <video v-else-if="message.type === 'video'" controls class="max-w-xs rounded-lg">
           <source :src="mediaSource" type="video/mp4">
         </video>
@@ -58,4 +69,16 @@ const mediaSource = computed(() => {
       </div>
     </div>
   </div>
+
+  <ImagePreviewModal 
+    :show="showImagePreview"
+    :imageUrl="previewImageUrl" 
+    @close="showImagePreview = false"
+  />
 </template>
+
+<style scoped>
+.cursor-zoom-in {
+  cursor: zoom-in;
+}
+</style>
