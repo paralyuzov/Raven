@@ -65,7 +65,7 @@ const handleSendMessage = (text) => {
   sendMessage(newMessage);
   messages.value.push(newMessage);
 
-  setTimeout(() => messageListRef.value?.scrollToBottom(), 50);
+  setTimeout(() => messageListRef.value?.scrollToBottom(), 100);
 };
 
 const handleSendGif = (gifUrl) => {
@@ -80,17 +80,42 @@ const handleSendGif = (gifUrl) => {
   sendMessage(newMessage);
   messages.value.push(newMessage);
 
-  setTimeout(() => messageListRef.value?.scrollToBottom(), 50);
+  setTimeout(() => messageListRef.value?.scrollToBottom(), 100);
 };
 
 const handleSendMedia = async (file) => {
   try {
-    console.log('File upload to be implemented:', file);
-  } catch (error) {
-    console.error('Error uploading file:', error);
-  }
+    const loadingMessage = {
+      sender: userId,
+      recipient: recipientId.value,
+      message: "Uploading media...",
+      type: 'text',
+      isLoading: true,
+      tempId: Date.now(),
+      updatedAt: new Date().toISOString(),
+    };
+    
+    messages.value.push(loadingMessage);
+    const result = await messageStore.uploadMedia(file);
+    
+    messages.value = messages.value.filter(m => !m.isLoading);
 
-  setTimeout(() => messageListRef.value?.scrollToBottom(), 50);
+    const newMessage = {
+      sender: userId,
+      recipient: recipientId.value,
+      message: result.mediaUrl,
+      type: result.type,
+      updatedAt: new Date().toISOString(),
+    };
+    
+    sendMessage(newMessage);
+    messages.value.push(newMessage);
+    
+    setTimeout(() => messageListRef.value?.scrollToBottom(), 100);
+  } catch (error) {
+    console.error('Error uploading media:', error);
+    messages.value = messages.value.filter(m => !m.isLoading);
+  }
 };
 </script>
 

@@ -8,14 +8,26 @@ const props = defineProps({
   recipient: Object,
 });
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3002';
+
 const isOwnMessage = computed(() => props.message.sender === props.userId);
 const messageTime = computed(() => new Date(props.message.updatedAt).toLocaleTimeString());
 const isMedia = computed(() => 
   props.message.type === 'gif' || 
   props.message.type === 'image' || 
   props.message.type === 'video' ||
-  props.message.message.includes('giphy.com')
+  props.message.message?.includes('giphy.com')
 );
+
+const mediaSource = computed(() => {
+  if (!props.message?.message) return '';
+
+  if (props.message.message.startsWith('http') || !props.message.message.startsWith('/uploads')) {
+    return props.message.message;
+  }
+  
+  return `${API_BASE_URL}${props.message.message}`;
+});
 </script>
 
 <template>
@@ -28,12 +40,12 @@ const isMedia = computed(() =>
          class="flex justify-end rounded-2xl max-w-2xl text-white saturate-200">
          
       <div v-if="isMedia" class="relative">
-        <img v-if="message.type === 'gif' || message.message.includes('giphy.com')" 
-             :src="message.message" alt="GIF" class="max-w-xs rounded-lg">
+        <img v-if="message.type === 'gif' || message.message?.includes('giphy.com')" 
+             :src="mediaSource" alt="GIF" class="max-w-xs rounded-lg">
         <img v-else-if="message.type === 'image'" 
-             :src="message.message" alt="Image" class="max-w-xs rounded-lg">
+             :src="mediaSource" alt="Image" class="max-w-xs rounded-lg">
         <video v-else-if="message.type === 'video'" controls class="max-w-xs rounded-lg">
-          <source :src="message.message" type="video/mp4">
+          <source :src="mediaSource" type="video/mp4">
         </video>
         <p class="absolute bottom-2 right-0 text-white text-[10px] font-light font-exo px-2 py-1 rounded">
           {{ messageTime }}
