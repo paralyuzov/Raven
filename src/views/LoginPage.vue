@@ -19,7 +19,7 @@ export default {
             <img src="../assets/logo.png" alt=""
                 class=" w-80 aspect-auto rounded-full saturate-200 hover:-rotate-3 ease-in-out duration-1000 -skew-5">
             <Login />
-            <p class="text-sm font-mono text-black ">Don't have an account? Register here.</p>
+            <p class="text-sm font-mono text-black ">Don't have an account? Register <span class="font-bold"><router-link to="/">here</router-link></span>.</p>
         </div>
 
     </div>
