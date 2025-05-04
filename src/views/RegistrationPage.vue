@@ -23,7 +23,7 @@ export default {
                 </div>
                 <h2 class="text-5xl tracking-wide ">Welcome to RAVEN</h2>
                 <p class="text-xl font-orbitron text-purple-500 ">Your private message platform</p>
-                <p class="text-sm font-mono text-black ">Already have an account? Login here.</p>
+                <p class="text-sm font-mono text-black ">Already have an account? Login <span class="font-bold"><router-link to="/login">here</router-link></span>.</p>
             </div>
 
 
