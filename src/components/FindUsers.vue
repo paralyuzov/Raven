@@ -4,6 +4,7 @@ import InputField from "./ui/InputField.vue";
 import { useContactsStore } from "../stores/contactsStore";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { faSearch, faUserPlus, faClose } from "@fortawesome/free-solid-svg-icons";
+import Avatar from "./ui/Avatar.vue";
 
 const props = defineProps({
   show: {
@@ -19,22 +20,23 @@ const users = ref([]);
 const searchQuery = ref("");
 
 const searchUsers = async () => {
-    try {
-        if (!searchQuery.value.trim()) {
-            return;
-        }
-        users.value = await contactStore.findUsers(searchQuery.value);
-    } catch (error) {
-        console.error('Search error:', error);
+  try {
+    if (!searchQuery.value.trim()) {
+      return;
     }
+    users.value = await contactStore.findUsers(searchQuery.value);
+    console.log(users.value);
+  } catch (error) {
+    console.error('Search error:', error);
+  }
 };
 
 const friendRequest = async (friendId) => {
-    try {
-        await contactStore.sendFriendRequest(friendId);
-    } catch (error) {
-        console.error('Friend request error:', error);
-    }
+  try {
+    await contactStore.sendFriendRequest(friendId);
+  } catch (error) {
+    console.error('Friend request error:', error);
+  }
 };
 
 const closeModal = () => {
@@ -62,7 +64,11 @@ const closeModal = () => {
           <div v-for="user in users" :key="user._id"
             class="p-2 flex justify-start my-2 items-center space-x-2 bg-slate-600 rounded-lg">
             <div>
-              <img src="../assets/photo-1.jpeg" alt="" class="w-12 h-12 object-cover rounded-full" />
+              <Avatar 
+              :src="user.avatar"
+               :alt="`${user.firstName}'s avatar`"
+                size="sm" 
+                class="h-14 w-14" />
             </div>
 
             <p class="font-mono text-gray-100 flex-grow">
