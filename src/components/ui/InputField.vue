@@ -55,6 +55,6 @@ export default {
         error ? 'border-red-500 focus:ring-red-500' : ''
       ]"
     />
-    <p v-if="error" class="mt-1 text-sm text-red-500">{{ error }}</p>
+    <p v-if="error" class="mt-1 text-sm font-exo text-red-500">{{ error }}</p>
   </div>
 </template>
