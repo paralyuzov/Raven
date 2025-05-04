@@ -187,7 +187,7 @@ exports.getUserById = async (req, res) => {
 
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    res.json({ firstName: user.firstName, lastName: user.lastName,id:user._id });
+    res.json({ firstName: user.firstName, lastName: user.lastName,id:user._id ,avatar:user.avatar});
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -237,7 +237,7 @@ exports.searchUser = async (req, res) => {
                 },
                 { _id: { $ne: currentUserId } }
             ]
-        }).select('firstName lastName _id');
+        }).select('firstName lastName avatar _id')
         
         return res.status(200).json(users);
     } catch (error) {
