@@ -2,8 +2,8 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 
 const UserSchema = new mongoose.Schema({
-  firstName: { type: String, required: true, trim: true, minlength: 2, maxlength: 50 },
-  lastName: { type: String, required: true, trim: true, minlength: 2, maxlength: 50 },
+  firstName: { type: String, required: true, trim: true, minlength: 2, maxlength: 20 },
+  lastName: { type: String, required: true, trim: true, minlength: 2, maxlength: 20 },
   nickname: { type: String, required: true, unique: true, trim: true, minlength: 3, maxlength: 20 },
   email: { type: String, required: true, unique: true, match: /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/ },
   avatar: { type: String, default: "" },
