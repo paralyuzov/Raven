@@ -55,9 +55,7 @@ export const useAuthStore = defineStore("authStore", {
           }
         });
         
-        if (this.user) {
-          this.user.avatar = response.data.avatarUrl;
-        }
+        await this.fetchCurrentUser();
         
         return response.data;
       } catch (error) {
@@ -66,11 +64,25 @@ export const useAuthStore = defineStore("authStore", {
       } finally {
         this.loading = false;
       }
-    }
+    },
+    async fetchCurrentUser() {
+      this.loading = true;
+      this.error = null;
+      try {
+        const response = await axios.get("/auth/me");
+        this.user = response.data.user;
+        return this.user;
+      } catch (error) {
+        this.error = error.response?.data?.error || "Failed to fetch user data";
+        throw this.error;
+      } finally {
+        this.loading = false;
+      }
+    },
   },
   persist: {
     key: "auth", 
     storage: localStorage,
-    paths: ["user"], // Ensure only the user data is persisted
+    paths: ["user"],
   },
 });
