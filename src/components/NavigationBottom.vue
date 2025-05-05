@@ -43,40 +43,70 @@ watch(
 </script>
 
 <template>
-  <nav class="fixed bottom-0 left-0 w-full bg-slate-800 shadow-lg">
-    <div class="flex justify-around py-3">
-      <div class="text-white flex space-x-12 items-center ">
-          <div class="bg-slate-600 w-16 h-16 flex justify-center items-center rounded-full hover:bg-violet-900 cursor-pointer hover:rotate-6 transition-all ease-in-out duration-500">
-            <FontAwesomeIcon :icon="faHouse" class="text-2xl" />
+  <nav class="fixed bottom-4 left-1/2 -translate-x-1/2 z-40 w-auto px-5 py-3 bg-gradient-to-r from-slate-800 via-slate-900 to-slate-800 rounded-2xl shadow-xl border border-slate-700/50 backdrop-blur-md">
+    <div class="flex items-center justify-center space-x-3 sm:space-x-3">
+      <router-link to="/" custom v-slot="{ isActive, navigate }">
+        <button @click="navigate" 
+          class="relative flex flex-col items-center justify-center p-2 rounded-xl transition-all duration-300 min-w-[64px]"
+          :class="isActive ? 'bg-gradient-to-br from-purple-700 to-indigo-800 text-white shadow-lg shadow-purple-700/30 hover:shadow-xl hover:shadow-purple-700/40' : 'text-gray-400 hover:text-white hover:bg-slate-700/50'"
+        >
+          <div class="relative flex items-center justify-center h-10 w-10 rounded-full transition-transform"
+               :class="isActive ? 'scale-110' : 'hover:scale-110'">
+            <FontAwesomeIcon :icon="faHouse" class="text-xl sm:text-2xl" />
           </div>
-          
-          <div class="bg-slate-600 w-16 h-16 flex justify-center items-center rounded-full hover:bg-violet-900 cursor-pointer hover:rotate-6 transition-all ease-in-out duration-500 " @click="toggleUserSearch">
-            <FontAwesomeIcon :icon="faUsers" class="text-2xl" />
+          <span class="text-[10px] mt-1 font-medium tracking-wide">Home</span>
+        </button>
+      </router-link>
+      
+      <button @click="toggleUserSearch" 
+        class="relative flex flex-col items-center justify-center p-2 rounded-xl transition-all duration-300 min-w-[64px] text-gray-400 hover:text-white hover:bg-slate-700/50">
+        <div class="relative flex items-center justify-center h-10 w-10 rounded-full transition-transform hover:scale-110">
+          <FontAwesomeIcon :icon="faUsers" class="text-xl sm:text-2xl" />
+        </div>
+        <span class="text-[10px] mt-1 font-medium tracking-wide">Find</span>
+      </button>
+      
+      <router-link to="/messages" custom v-slot="{ isActive, navigate }">
+        <button @click="navigate" 
+          class="relative flex flex-col items-center justify-center p-2 rounded-xl transition-all duration-300 min-w-[64px]"
+          :class="isActive ? 'bg-gradient-to-br from-purple-700 to-indigo-800 text-white shadow-lg shadow-purple-700/30 hover:shadow-xl hover:shadow-purple-700/40' : 'text-gray-400 hover:text-white hover:bg-slate-700/50'"
+        >
+          <div class="relative flex items-center justify-center h-10 w-10 rounded-full transition-transform"
+               :class="isActive ? 'scale-110' : 'hover:scale-110'">
+            <FontAwesomeIcon :icon="faContactBook" class="text-xl sm:text-2xl" />
           </div>
-          
-          <router-link to="/messages" custom v-slot="{ navigate }">
-            <div @click="navigate" class="bg-slate-600 w-16 h-16 flex justify-center items-center rounded-full hover:bg-violet-900 cursor-pointer hover:rotate-6 transition-all ease-in-out duration-500">
-              <FontAwesomeIcon :icon="faContactBook" class="text-2xl" />
-            </div>
-          </router-link>
-          
-          <router-link to="/profile" custom v-slot="{ navigate }">
-            <div @click="navigate" class="bg-slate-600 w-16 h-16 flex justify-center items-center rounded-full hover:bg-violet-900 cursor-pointer hover:rotate-6 transition-all ease-in-out duration-500">
-              <FontAwesomeIcon :icon="faUser" class="text-2xl" />
-            </div>
-          </router-link>
-          
-          <div class="bg-slate-600 w-16 h-16 flex justify-center items-center rounded-full hover:bg-violet-900 cursor-pointer hover:rotate-6 transition-all ease-in-out duration-500 relative" @click="toggleModal">
-            <div class="relative">
-              <FontAwesomeIcon :icon="faBell" class="text-2xl" />
-              <span v-if="friendRequests.length" class="absolute w-6 h-6 flex justify-center items-center -top-4 -right-5 bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
-                {{ friendRequests.length }}
-              </span>
-            </div>
+          <span class="text-[10px] mt-1 font-medium tracking-wide">Messages</span>
+        </button>
+      </router-link>
+      
+      <router-link to="/profile" custom v-slot="{ isActive, navigate }">
+        <button @click="navigate" 
+          class="relative flex flex-col items-center justify-center p-2 rounded-xl transition-all duration-300 min-w-[64px]"
+          :class="isActive ? 'bg-gradient-to-br from-purple-700 to-indigo-800 text-white shadow-lg shadow-purple-700/30 hover:shadow-xl hover:shadow-purple-700/40' : 'text-gray-400 hover:text-white hover:bg-slate-700/50'"
+        >
+          <div class="relative flex items-center justify-center h-10 w-10 rounded-full transition-transform"
+               :class="isActive ? 'scale-110' : 'hover:scale-110'">
+            <FontAwesomeIcon :icon="faUser" class="text-xl sm:text-2xl" />
           </div>
-      </div>
+          <span class="text-[10px] mt-1 font-medium tracking-wide">Profile</span>
+        </button>
+      </router-link>
+      
+      <button @click="toggleModal" 
+        class="relative flex flex-col items-center justify-center p-2 rounded-xl transition-all duration-300 min-w-[64px] text-gray-400 hover:text-white hover:bg-slate-700/50">
+        <div class="relative flex items-center justify-center h-10 w-10 rounded-full transition-transform hover:scale-110">
+          <FontAwesomeIcon :icon="faBell" class="text-xl sm:text-2xl" />
+          <span v-if="friendRequests.length" 
+                class="absolute -top-2 -right-2 w-5 h-5 flex justify-center items-center bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs font-bold rounded-full shadow-lg shadow-red-500/30 animate-pulse">
+            {{ friendRequests.length }}
+          </span>
+        </div>
+        <span class="text-[10px] mt-1 font-medium tracking-wide">Alerts</span>
+      </button>
     </div>
   </nav>
+
+  <div class="fixed bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-slate-900 to-transparent pointer-events-none"></div>
   
   <NotificationModal
     :show="showModal" 
@@ -89,3 +119,4 @@ watch(
     @close="toggleUserSearch"
   />
 </template>
+
