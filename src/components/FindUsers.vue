@@ -1,9 +1,10 @@
 <script setup>
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import InputField from "./ui/InputField.vue";
 import { useContactsStore } from "../stores/contactsStore";
+import { useAuthStore } from "../stores/authStore";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
-import { faSearch, faUserPlus, faClose, faCheck } from "@fortawesome/free-solid-svg-icons";
+import { faSearch, faUserPlus, faClose, faCheck, faUserCheck, faClock } from "@fortawesome/free-solid-svg-icons";
 import Avatar from "./ui/Avatar.vue";
 
 const props = defineProps({
@@ -16,10 +17,24 @@ const props = defineProps({
 const emit = defineEmits(["close"]);
 
 const contactStore = useContactsStore();
+const authStore = useAuthStore();
 const users = ref([]);
 const searchQuery = ref("");
 const requestSent = ref(new Set());
 const isSearching = ref(false);
+
+const isFriend = (userId) => {
+  console.log(authStore.user);
+  return authStore.user?.friends?.some(friendId => friendId === userId);
+};
+
+const hasPendingRequest = (userId) => {
+  const isIncomingRequest = authStore.user?.friendRequests?.some(request => request === userId);
+  
+  const isOutgoingRequest = contactStore.outgoingRequests?.includes(userId);
+  
+  return isIncomingRequest || isOutgoingRequest || requestSent.value.has(userId);
+};
 
 const searchUsers = async () => {
   try {
@@ -90,7 +105,7 @@ const closeModal = () => {
             <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
           </div>
 
-          <div v-else-if="users.length" class="divide-y divide-gray-100 dark:divide-gray-700">
+          <div v-else-if="users.length" class="divide-y divide-gray-100  dark:divide-gray-600">
             <div 
               v-for="user in users" 
               :key="user._id"
@@ -109,7 +124,19 @@ const closeModal = () => {
                   {{ user.firstName }} {{ user.lastName }}
                 </p>
               </div>
+              
+              <div v-if="isFriend(user._id)" class="flex items-center text-green-600 dark:text-green-500">
+                <FontAwesomeIcon :icon="faUserCheck" class="mr-2" />
+                <span class="text-sm font-medium">Friend</span>
+              </div>
+              
+              <div v-else-if="hasPendingRequest(user._id)" class="flex items-center text-blue-600 dark:text-blue-400">
+                <FontAwesomeIcon :icon="faClock" class="mr-2" />
+                <span class="text-sm font-medium">Pending</span>
+              </div>
+              
               <button 
+                v-else
                 @click="friendRequest(user._id)" 
                 :disabled="requestSent.has(user._id)"
                 :class="[
@@ -152,12 +179,12 @@ const closeModal = () => {
 <style scoped>
 .modal-fade-enter-active,
 .modal-fade-leave-active {
-  transition: opacity 0.3s ease, transform 0.3s ease;
+  transition: opacity 0.8s ease, transform 0.8s ease;
 }
 
 .modal-fade-enter-from,
 .modal-fade-leave-to {
   opacity: 0;
-  transform: translateY(-20px);
+  transform: translateY(-10px);
 }
 </style>
