@@ -8,7 +8,8 @@ export const useContactsStore = defineStore("contactsStore", {
         loading: false,
         error: null,
         pendingRequests: [],
-        requestUsernames: []
+        requestUsernames: [],
+        outgoingRequests: [] 
     }),
     
     getters: {
@@ -18,6 +19,9 @@ export const useContactsStore = defineStore("contactsStore", {
                 ...authStore.user?.friendRequests || [], 
                 ...this.pendingRequests.map(req => req.id)
             ])];
+        },
+        isPendingRequest() {
+            return (userId) => this.outgoingRequests.includes(userId);
         }
     },
 
@@ -38,12 +42,13 @@ export const useContactsStore = defineStore("contactsStore", {
             try {
                 await axios.post(`users/accept-request/${friendId}`);
                 const authStore = useAuthStore();
-                
                 this.pendingRequests = this.pendingRequests.filter(req => req.id !== friendId);
                 authStore.user.friendRequests = authStore.user.friendRequests.filter(id => id !== friendId);
+                this.outgoingRequests = this.outgoingRequests.filter(id => id !== friendId);
                 
                 await this.getContacts();
                 await this.fetchRequestUsernames();
+                await authStore.fetchCurrentUser();
             } catch (error) {
                 this.error = error.response?.data?.message || "Failed to accept friend request.";
                 throw error;
@@ -56,6 +61,11 @@ export const useContactsStore = defineStore("contactsStore", {
             this.error = null;
             try {
                 const response = await axios.post(`users/friend-request/${friendId}`);
+                
+                if (!this.outgoingRequests.includes(friendId)) {
+                    this.outgoingRequests.push(friendId);
+                }
+                
                 return response.data;
             } catch (error) {
                 this.error = error.response?.data?.message || "Failed to send friend request.";
@@ -72,6 +82,7 @@ export const useContactsStore = defineStore("contactsStore", {
                 const authStore = useAuthStore();
                 this.pendingRequests = this.pendingRequests.filter(req => req.id !== friendId);
                 authStore.user.friendRequests = authStore.user.friendRequests.filter(id => id !== friendId);
+                this.outgoingRequests = this.outgoingRequests.filter(id => id !== friendId);
                 await this.getContacts();
                 await this.fetchRequestUsernames();
             } catch (error) {
@@ -134,5 +145,11 @@ export const useContactsStore = defineStore("contactsStore", {
                 this.fetchRequestUsernames();
             }
         }
+    },
+    
+    persist: {
+        key: "contacts",
+        storage: localStorage,
+        paths: ["contacts", "outgoingRequests"]
     }
 });
