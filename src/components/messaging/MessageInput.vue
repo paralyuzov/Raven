@@ -72,47 +72,72 @@ const handleFileUpload = (event) => {
 </script>
 
 <template>
-  <div class="w-full flex justify-center items-center p-3 pb-5 fixed bottom-20 left-20 z-40">
-    <div class="w-full sm:w-[30%] md:w-[50%] lg:w-[40%] flex items-center bg-slate-900 rounded-full">
-      <div class="flex justify-center items-center space-x-2 mr-2">
-        <FontAwesomeIcon :icon="faFaceSmile" @click="toggleEmojiPicker"
-          class="text-purple-700 pl-2 text-xl hover:rotate-12 duration-150 transition-all ease-in-out cursor-pointer hover:scale-110">
-        </FontAwesomeIcon>
+  <div class="relative z-10  bg-slate-800/20 py-4 px-4 max-w-full" >
+    <div class=" relative flex items-center mx-auto">
+      <div class="flex space-x-3 mr-3">
+        <button @click="toggleEmojiPicker" class="p-2 rounded-full hover:bg-purple-700/20 transition-all duration-200">
+          <FontAwesomeIcon :icon="faFaceSmile" class="text-purple-400 text-lg" />
+        </button>
         
-        <label for="file-upload" class="cursor-pointer">
-          <FontAwesomeIcon :icon="faUpload"
-            class="text-purple-700 px-1 hover:-translate-y-0.5 duration-150 transition-all ease-in-out hover:scale-110">
-          </FontAwesomeIcon>
+        <label for="file-upload" class="p-2 rounded-full hover:bg-purple-700/20 transition-all duration-200 cursor-pointer">
+          <FontAwesomeIcon :icon="faUpload" class="text-purple-400 text-lg" />
         </label>
         <input id="file-upload" type="file" accept="image/*,video/*" class="hidden" @change="handleFileUpload" />
         
-        <FontAwesomeIcon :icon="faFilm" @click="toggleGifPicker"
-          class="text-purple-700 pl-2 text-xl hover:rotate-12 duration-150 transition-all ease-in-out cursor-pointer hover:scale-110">
-        </FontAwesomeIcon>
+        <button @click="toggleGifPicker" class="p-2 rounded-full hover:bg-purple-700/20 transition-all duration-200">
+          <FontAwesomeIcon :icon="faFilm" class="text-purple-400 text-lg" />
+        </button>
       </div>
 
-      <input ref="inputRef" type="text" v-model="messageText" placeholder="Type a message..."
-        class="w-full px-4 py-2 rounded-full text-normal font-exo text-white focus:outline-none hover:bg-slate-950"
-        @keydown.enter="sendMessageHandler" />
-      <FontAwesomeIcon :icon="faArrowCircleRight"
-        class="text-purple-700 px-2 hover:cursor-pointer hover:scale-110 duration-150" @click="sendMessageHandler">
-      </FontAwesomeIcon>
+      <input 
+        ref="inputRef" 
+        type="text" 
+        v-model="messageText" 
+        placeholder="Type a message..." 
+        class="flex-1 bg-slate-700 text-white rounded-full py-3 px-5 focus:outline-none focus:ring-2 focus:ring-purple-500/50 placeholder-gray-400"
+        @keydown.enter="sendMessageHandler"
+      />
+      
+      <button 
+        @click="sendMessageHandler"
+        :disabled="!messageText.trim()"
+        :class="messageText.trim() ? 'bg-gradient-to-r from-purple-600 to-indigo-700 hover:from-purple-700 hover:to-indigo-800' : 'bg-slate-600'"
+        class="ml-3 rounded-full p-3 text-white transition-all duration-200"
+      >
+        <FontAwesomeIcon :icon="faArrowCircleRight" class="text-lg" />
+      </button>
     </div>
-  </div>
 
-  <div v-if="showEmojiPicker" class="absolute bottom-35 left-1/2 transform -translate-x-10/12 z-50">
-    <EmojiPicker class="custom-emoji-picker" :hide-group-names="true" :disable-sticky-group-name="true" theme="light"
-      :hide-search="true" @select="addEmoji" :auto-emoji="true" :disable-skin-tones="true" />
-  </div>
+    <div 
+      v-if="showEmojiPicker" 
+      class="absolute bottom-20 left-0 z-50 shadow-2xl rounded-lg overflow-hidden"
+    >
+      <EmojiPicker 
+        class="custom-emoji-picker" 
+        :hide-group-names="true" 
+        :disable-sticky-group-name="true" 
+        theme="dark"
+        :hide-search="false" 
+        @select="addEmoji" 
+        :auto-emoji="true" 
+        :disable-skin-tones="true" 
+      />
+    </div>
 
-  <div v-if="showGifPicker" class="absolute bottom-35 left-1/2 transform -translate-x-10/12 z-50">
-    <GiphySearch @select-gif="sendGifMessage" />
+    <div 
+      v-if="showGifPicker" 
+      class="absolute bottom-20 left-4 z-50 shadow-2xl rounded-lg overflow-hidden"
+      @click.outside="showGifPicker = false"
+    >
+      <GiphySearch @select-gif="sendGifMessage" />
+    </div>
   </div>
 </template>
 
 <style scoped>
 .custom-emoji-picker {
-  background: #abafb4;
+  background: #1f2937;
   user-select: none;
+  border-radius: 0.5rem;
 }
 </style>

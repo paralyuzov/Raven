@@ -40,32 +40,47 @@ const openImagePreview = (url) => {
 </script>
 
 <template>
-  <div :class="isOwnMessage ? 'flex justify-end' : 'flex justify-start'">
-    <div class="self-start" v-if="!isOwnMessage">
-      <Avatar :src="recipient.avatar" :alt="`${recipient.firstName}'s avatar`" size="sm" class="h-10 w-10" />
+  <div :class="isOwnMessage ? 'flex justify-end' : 'flex justify-start'" class="group">
+    <div class="self-end mb-1" v-if="!isOwnMessage">
+      <Avatar :src="recipient.avatar" :alt="`${recipient.firstName}'s avatar`" size="xs" class="h-8 w-8" />
     </div>
     
-    <div :class="isOwnMessage ? 'bg-sky-600 mr-2' : 'bg-gray-800 ml-2'" 
-         class="flex justify-end rounded-2xl max-w-2xl text-white saturate-200">
-         
-      <div v-if="isMedia" class="relative">
-        <img v-if="message.type === 'gif' || message.message?.includes('giphy.com')" 
-             :src="mediaSource" alt="GIF" class="max-w-xs rounded-lg cursor-zoom-in"
-             @click="openImagePreview(mediaSource)">
-        <img v-else-if="message.type === 'image'" 
-             :src="mediaSource" alt="Image" class="max-w-xs rounded-lg cursor-zoom-in"
-             @click="openImagePreview(mediaSource)">
+    <div 
+      :class="[
+        isOwnMessage 
+          ? 'bg-gradient-to-r from-purple-700 to-indigo-800 mr-2 rounded-bl-2xl rounded-tl-2xl rounded-tr-lg' 
+          : 'bg-slate-700 ml-2 rounded-br-2xl rounded-tr-2xl rounded-tl-lg',
+        isMedia ? 'p-1 overflow-hidden' : 'py-2 px-4'
+      ]" 
+      class="text-white shadow-lg max-w-md"
+    >
+      <div v-if="isMedia" class="relative rounded-lg overflow-hidden">
+        <img 
+          v-if="message.type === 'gif' || message.message?.includes('giphy.com')" 
+          :src="mediaSource" 
+          alt="GIF" 
+          class="max-w-xs rounded-lg cursor-zoom-in"
+          @click="openImagePreview(mediaSource)"
+        >
+        <img 
+          v-else-if="message.type === 'image'" 
+          :src="mediaSource" 
+          alt="Image" 
+          class="max-w-xs rounded-lg cursor-zoom-in"
+          @click="openImagePreview(mediaSource)"
+        >
         <video v-else-if="message.type === 'video'" controls class="max-w-xs rounded-lg">
           <source :src="mediaSource" type="video/mp4">
         </video>
-        <p class="absolute bottom-2 right-0 text-white text-[10px] font-light font-exo px-2 py-1 rounded">
+        
+        <div class="absolute bottom-2 right-2 bg-black/40 text-white text-xs font-light font-exo px-2 py-1 rounded-full">
           {{ messageTime }}
-        </p>
+        </div>
       </div>
       
-      <div v-else class="flex">
-        <p class="p-4 tracking-wide text-xl prose max-w-md font-exo">{{ message.message }}</p>
-        <p class="self-end text-[10px] font-light font-exo p-2">{{ messageTime }}</p>
+      <div v-else class="flex flex-col">
+        <p class="tracking-wide font-exo">{{ message.message }}</p>
+        <span class="text-[14px] font-light self-end mt-1 opacity-75">{{ messageTime }}</span>
       </div>
     </div>
   </div>

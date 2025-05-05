@@ -120,7 +120,7 @@ const handleSendMedia = async (file) => {
 </script>
 
 <template>
-  <div class="ml-62 min-h-[calc(100vh-4rem)] flex flex-col bg-slate-700">
+  <div class="ml-72 min-h-[calc(100vh-7rem)] flex flex-col bg-slate-900">
     <MessageHeader :recipient="props.recipient" />
 
     <MessageList ref="messageListRef" :messages="messages" :userId="userId" :recipient="props.recipient"
