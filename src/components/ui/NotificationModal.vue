@@ -186,7 +186,7 @@ const closeModal = () => {
 <style scoped>
 .modal-fade-enter-active,
 .modal-fade-leave-active {
-  transition: opacity 0.3s ease;
+  transition: opacity 0.8s ease;
 }
 
 .modal-fade-enter-from,
@@ -198,7 +198,7 @@ const closeModal = () => {
 .modal-fade-leave-active .bg-white,
 .modal-fade-enter-active .bg-gray-800,
 .modal-fade-leave-active .bg-gray-800 {
-  transition: transform 0.3s ease;
+  transition: transform 0.8s ease;
 }
 
 .modal-fade-enter-from .bg-white,
