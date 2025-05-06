@@ -12,6 +12,7 @@ const selectedUser = ref(null);
 const unreadMessages = reactive({});
 const authStore = useAuthStore();
 const onlineUsers = ref({});
+const query = ref("");
 
 socket.emit("join", authStore.user.id);
 
@@ -74,6 +75,17 @@ const selectContact = (user) => {
   });
 };
 
+const searchUser = (query) => {
+  if (!query) {
+    users.value = contactsStore.contacts;
+    return;
+  }
+  users.value = contactsStore.contacts.filter(user => 
+    user.firstName.toLowerCase().includes(query.toLowerCase()) || 
+    user.lastName.toLowerCase().includes(query.toLowerCase())
+  );
+};
+
 onUnmounted(() => {
   socket.off("receive_message");
   socket.off("unread_messages");
@@ -94,7 +106,7 @@ onUnmounted(() => {
           Messages
         </h2>
         <div class="relative">
-          <input type="text" placeholder="Search..." class="w-22 focus:w-24 transition-all duration-300 bg-slate-700 text-white text-sm rounded-full px-3 py-1 focus:outline-none focus:ring-1 focus:ring-purple-500 placeholder-gray-400" />
+          <input v-model="query" @input="searchUser(query)" type="text" placeholder="Search..." class="w-22 focus:w-24 transition-all duration-300 bg-slate-700 text-white text-sm rounded-full px-3 py-1 focus:outline-none focus:ring-1 focus:ring-purple-500 placeholder-gray-400" />
         </div>
       </div>
       
