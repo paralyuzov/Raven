@@ -26,7 +26,7 @@ const avatarUrl = computed(() => {
   }
 
   let result;
-  if (props.src.startsWith('http')) {
+  if (props.src.startsWith('https://') || props.src.startsWith('http://')) {
     result = props.src;
   } else {
     result = `${API_BASE_URL}${props.src}`;
