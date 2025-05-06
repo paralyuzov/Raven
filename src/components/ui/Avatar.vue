@@ -29,7 +29,8 @@ const avatarUrl = computed(() => {
   if (props.src.startsWith('https://') || props.src.startsWith('http://')) {
     result = props.src;
   } else {
-    result = `${API_BASE_URL}${props.src}`;
+    const hasLeadingSlash = props.src.startsWith('/');
+    result = `${API_BASE_URL}${hasLeadingSlash ? '' : '/'}${props.src}`;
   }
   
   return result;
