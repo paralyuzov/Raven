@@ -74,7 +74,10 @@ router.post("/login", async (req, res) => {
 });
 
 router.post("/logout", (req, res) => {
-  res.clearCookie("user", COOKIE_OPTIONS);
+  const { maxAge, ...clearOptions } = COOKIE_OPTIONS;
+  
+  res.clearCookie("user", clearOptions);
+  console.log("User logged out");
   res.status(200).json({ message: "Logout successful" });
 });
 
