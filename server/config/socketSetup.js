@@ -1,6 +1,7 @@
 const socketIo = require("socket.io");
 const Message = require("../models/Message");
 const { users, onlineUsers } = require('../state/sharedState');
+const jwt = require('jsonwebtoken');
 
 const setupSocket = (server, app) => {
   const io = socketIo(server, { 
@@ -12,6 +13,25 @@ const setupSocket = (server, app) => {
   });
 
   app.set('io', io);
+
+  io.use((socket, next) => {
+    const token = socket.handshake.auth.token;
+    
+    if (!token) {
+      console.log("Socket rejected: No auth token");
+      return next(new Error("Authentication error"));
+    }
+    
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      socket.userId = decoded.id;
+      console.log("Socket authenticated for user:", socket.userId);
+      next();
+    } catch (err) {
+      console.error("Socket auth error:", err.message);
+      next(new Error("Authentication error"));
+    }
+  });
 
   io.on("connection", (socket) => {
     console.log("User connected:", socket.id);
