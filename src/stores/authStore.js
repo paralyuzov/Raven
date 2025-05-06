@@ -1,5 +1,6 @@
 import axios from "../services/api";
 import { defineStore } from "pinia";
+import { useContactsStore } from "./contactsStore";
 
 export const useAuthStore = defineStore("authStore", {
   state: () => ({
@@ -37,26 +38,43 @@ export const useAuthStore = defineStore("authStore", {
         this.loading = false;
       }
     },
-    logoutUser() {
-      this.user = null;
+    async logoutUser() {
+      this.loading = true;
+      try {
+        await axios.post("/auth/logout");
+        this.user = null;
+
+        const contactStore = useContactsStore();
+        contactStore.$reset();
+
+        localStorage.removeItem("auth");
+
+        return { success: true };
+      } catch (error) {
+        console.error("Logout failed:", error);
+        this.user = null;
+        return { success: false, error: error.message };
+      } finally {
+        this.loading = false;
+      }
     },
 
     async uploadAvatar(avatarFile) {
       this.loading = true;
       this.error = null;
-      
+
       try {
         const formData = new FormData();
-        formData.append('avatar', avatarFile);
-        
-        const response = await axios.post('/users/upload-avatar', formData, {
+        formData.append("avatar", avatarFile);
+
+        const response = await axios.post("/users/upload-avatar", formData, {
           headers: {
-            'Content-Type': 'multipart/form-data'
-          }
+            "Content-Type": "multipart/form-data",
+          },
         });
-        
+
         await this.fetchCurrentUser();
-        
+
         return response.data;
       } catch (error) {
         this.error = error.response?.data?.error || "Failed to upload avatar";
@@ -81,7 +99,7 @@ export const useAuthStore = defineStore("authStore", {
     },
   },
   persist: {
-    key: "auth", 
+    key: "auth",
     storage: localStorage,
     paths: ["user"],
   },
