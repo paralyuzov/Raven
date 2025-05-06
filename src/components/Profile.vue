@@ -4,6 +4,7 @@ import { useAuthStore } from '../stores/authStore';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { faCamera, faCheck, faTimes } from '@fortawesome/free-solid-svg-icons';
 import Avatar from '../components/ui/Avatar.vue';
+import LogoutButton from '../components/ui/LogoutButton.vue';
 
 const authStore = useAuthStore();
 const isUploading = ref(false);
@@ -68,8 +69,7 @@ const uploadAvatar = async () => {
     
     console.log("Avatar URL from server:", response.avatarUrl);
     showNotification('Avatar updated successfully!', 'success');
-    
-    // Add a slight delay before clearing preview
+
     setTimeout(() => {
       avatarPreview.value = null;
     }, 100);
@@ -205,6 +205,12 @@ const triggerFileInput = () => {
             <p class="text-white">{{ userProfile.lastName }}</p>
           </div>
         </div>
+      </div>
+    </div>
+
+    <div class="profile-menu">
+      <div class="border-t border-slate-700 my-2 pt-2">
+        <LogoutButton />
       </div>
     </div>
   </div>
