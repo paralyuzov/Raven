@@ -1,13 +1,14 @@
 const express = require("express");
 const User = require("../models/User");
 const authorize = require("../middleware/authorize");
+const jwt = require('jsonwebtoken');
 
 const router = express.Router();
 
 const COOKIE_OPTIONS = {
   httpOnly: true,
-  secure: true,
-  sameSite: 'None',
+  secure: true,   
+  sameSite: 'None',  
   maxAge: 24 * 60 * 60 * 1000,
 };
 
@@ -54,8 +55,15 @@ router.post("/login", async (req, res) => {
     }
 
     res.cookie("user", user._id.toString(), COOKIE_OPTIONS);
-    console.log(user)
+    
+    const token = jwt.sign(
+      { id: user._id.toString() },
+      process.env.JWT_SECRET,
+      { expiresIn: '24h' }
+    );
+
     res.status(200).json({
+      token, 
       user: {
         id: user._id,
         firstName: user.firstName,
@@ -63,8 +71,8 @@ router.post("/login", async (req, res) => {
         nickname: user.nickname,
         email: user.email,
         avatar: user.avatar,
-        friendRequests:user.friendRequests,
-        friends:user.friends
+        friendRequests: user.friendRequests,
+        friends: user.friends
       },
     });
   } catch (error) {

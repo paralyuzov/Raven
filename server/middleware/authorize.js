@@ -1,17 +1,26 @@
 const User = require("../models/User");
+const jwt = require('jsonwebtoken');
 
-module.exports = async (req, res, next) => {
-    if (!req.cookies || !req.cookies.user) {
-        return res.status(401).json({ message: "Unauthorized" });
-    }
+module.exports = function authorize(req, res, next) {
+  const userId = req.cookies.user;
 
+  const authHeader = req.headers.authorization;
+  const token = authHeader && authHeader.split(' ')[1];
+  
+  if (userId) {
+    req.user = { id: userId };
+    return next();
+  } 
+  
+  if (token) {
     try {
-        const user = await User.findById(req.cookies.user).select("-password");
-        if (!user) return res.status(401).json({ message: "User not found" });
-
-        req.user = user;
-        next();
-    } catch (error) {
-        res.status(401).json({ message: "Invalid session" });
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      req.user = { id: decoded.id };
+      return next();
+    } catch (err) {
+      return res.status(401).json({ error: "Invalid token" });
     }
+  }
+  
+  return res.status(401).json({ error: "Authentication required" });
 };
