@@ -20,7 +20,7 @@ const server = http.createServer(app);
 
 app.use(bodyParser.json());
 app.use(cookieParser());
-app.use(cors({ origin: "http://localhost:5173", credentials: true }));
+app.use(cors({ origin: process.env.FRONTEND_URL, credentials: true }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 const io = setupSocket(server, app);
