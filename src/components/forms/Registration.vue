@@ -79,37 +79,107 @@ const handleSubmit = async () => {
 </script>
 
 <template>
-  <div class="min-w-2xl mx-auto p-8 rounded-2xl">
-    <h2 class="text-2xl font-orbitron text-center text-purple-700 mb-6">Create Account</h2>
+  <div class="w-full max-w-md mx-auto">
+    <h2 class="text-2xl font-bold font-orbitron text-white mb-8 text-center">
+      Create Your Account
+    </h2>
 
-    <div v-if="serverErrors.general" class="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
-      {{ serverErrors.general }}
+    <div v-if="serverErrors.general" class="mb-6 p-4 bg-red-500/20 border border-red-500/30 backdrop-blur-sm text-white rounded-lg">
+      <div class="flex items-start">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 mt-0.5 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <span>{{ serverErrors.general }}</span>
+      </div>
     </div>
 
-    <form @submit.prevent="handleSubmit">
-      <InputField id="firstName" label="First Name" v-model="form.firstName" :error="getFieldError('firstName')"
-        placeholder="Enter your first name" @blur="touchFormField('firstName')" />
+    <form @submit.prevent="handleSubmit" class="space-y-5">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <InputField 
+          id="firstName" 
+          label="First Name" 
+          v-model="form.firstName" 
+          :error="getFieldError('firstName')"
+          placeholder="Enter your first name" 
+          @blur="touchFormField('firstName')"
+          theme="dark" 
+        />
 
-      <InputField id="lastName" label="Last Name" v-model="form.lastName" :error="getFieldError('lastName')"
-        placeholder="Enter your last name" @blur="touchFormField('lastName')" />
+        <InputField 
+          id="lastName" 
+          label="Last Name" 
+          v-model="form.lastName" 
+          :error="getFieldError('lastName')"
+          placeholder="Enter your last name" 
+          @blur="touchFormField('lastName')"
+          theme="dark" 
+        />
+      </div>
 
-      <InputField id="nickname" label="Nickname" v-model="form.nickname" :error="getFieldError('nickname')"
-        placeholder="Enter your nickname" @blur="touchFormField('nickname')" />
+      <InputField 
+        id="nickname" 
+        label="Nickname" 
+        v-model="form.nickname" 
+        :error="getFieldError('nickname')"
+        placeholder="Choose a nickname" 
+        @blur="touchFormField('nickname')"
+        theme="dark"
+        icon="user" 
+      />
 
-      <InputField id="email" label="Email" type="email" v-model="form.email" :error="getFieldError('email')"
-        placeholder="Enter your email" @blur="touchFormField('email')" />
+      <InputField 
+        id="email" 
+        label="Email Address" 
+        type="email" 
+        v-model="form.email" 
+        :error="getFieldError('email')"
+        placeholder="your.email@example.com" 
+        @blur="touchFormField('email')"
+        theme="dark"
+        icon="envelope" 
+      />
 
-      <InputField id="password" label="Password" type="password" v-model="form.password"
-        :error="getFieldError('password')" placeholder="Enter your password" @blur="touchFormField('password')" />
+      <InputField 
+        id="password" 
+        label="Password" 
+        type="password" 
+        v-model="form.password"
+        :error="getFieldError('password')" 
+        placeholder="Create a strong password" 
+        @blur="touchFormField('password')"
+        theme="dark"
+        icon="lock" 
+      />
 
-      <InputField id="repassword" label="Confirm Password" type="password" v-model="form.repassword"
-        :error="getFieldError('repassword')" placeholder="Confirm your password" @blur="touchFormField('repassword')" />
+      <InputField 
+        id="repassword" 
+        label="Confirm Password" 
+        type="password" 
+        v-model="form.repassword"
+        :error="getFieldError('repassword')" 
+        placeholder="Confirm your password" 
+        @blur="touchFormField('repassword')"
+        theme="dark"
+        icon="lock" 
+      />
 
-      <button type="submit"
-        class="w-full py-2 mt-4 bg-purple-700 text-white font-semibold rounded-lg hover:bg-purple-800 transition duration-300"
-        :disabled="v$.value?.$invalid">
-        Sign Up
-      </button>
+      <div class="pt-2">
+        <button 
+          type="submit"
+          class="w-full py-3 px-4 bg-gradient-to-r from-purple-600 to-indigo-700 text-white font-semibold rounded-lg 
+                 hover:from-purple-700 hover:to-indigo-800 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2
+                 transform transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-70 disabled:cursor-not-allowed"
+          :disabled="v$.value?.$invalid || authStore.loading"
+        >
+          <div class="flex items-center justify-center">
+            <svg v-if="authStore.loading" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <span>{{ authStore.loading ? 'Creating account...' : 'Sign Up' }}</span>
+          </div>
+        </button>
+      </div>
     </form>
   </div>
 </template>
