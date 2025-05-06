@@ -4,28 +4,42 @@ const { users, onlineUsers } = require('../state/sharedState');
 const jwt = require('jsonwebtoken');
 
 const setupSocket = (server, app) => {
+  console.log("Setting up Socket.io with CORS origin:", process.env.FRONTEND_URL);
+  
+  console.log("NODE_ENV:", process.env.NODE_ENV);
+  console.log("PORT:", process.env.PORT);
+  
   const io = socketIo(server, { 
     cors: {
-      origin: process.env.FRONTEND_URL,
+      origin: process.env.NODE_ENV === "production" 
+        ? [process.env.FRONTEND_URL, "https://startling-dolphin-ee06b3.netlify.app"] 
+        : ["http://localhost:5173", "http://localhost:4173"],
       credentials: true,
-      methods: ["GET", "POST"],
+      methods: ["GET", "POST", "OPTIONS"],
     },
+    transports: ['websocket', 'polling'],
+    pingTimeout: 60000,
+    pingInterval: 25000,
   });
 
   app.set('io', io);
 
   io.use((socket, next) => {
+    console.log("Socket connection attempt from:", socket.handshake.address);
+    console.log("Socket auth headers:", socket.handshake.headers.origin);
+    
     const token = socket.handshake.auth.token;
+    console.log("Socket auth token present:", !!token);
     
     if (!token) {
-      console.log("Socket rejected: No auth token");
+      console.log("Socket rejected: No auth token provided");
       return next(new Error("Authentication error"));
     }
     
     try {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
       socket.userId = decoded.id;
-      console.log("Socket authenticated for user:", socket.userId);
+      console.log("Socket authenticated successfully for user:", socket.userId);
       next();
     } catch (err) {
       console.error("Socket auth error:", err.message);
