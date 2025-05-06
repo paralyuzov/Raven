@@ -1,60 +1,60 @@
-<script>
-export default {
-  props: {
-    modelValue: {
-      type: String,
-      required: true,
-    },
-    label: {
-      type: String,
-      required: true,
-    },
-    type: {
-      type: String,
-      default: 'text',
-    },
-    id: {
-      type: String,
-      required: true,
-    },
-    placeholder: {
-      type: String,
-      default: '',
-    },
-    error: {
-      type: String,
-      default: '',
-    },
+<script setup>
+defineProps({
+  id: String,
+  label: String,
+  modelValue: [String, Number],
+  type: {
+    type: String,
+    default: 'text'
   },
-  emits: ['update:modelValue'],
-  setup(props, { emit }) {
-    const updateValue = (value) => {
-      emit('update:modelValue', value);
-    };
+  placeholder: String,
+  error: String,
+  theme: {
+    type: String,
+    default: 'light'
+  },
+  icon: String
+});
 
-    return {
-      updateValue,
-    };
-  },
-};
+defineEmits(['update:modelValue', 'blur']);
 </script>
 
 <template>
-  <div class="mb-2 drop-shadow-2xl">
-    <label :for="id" class="block font-mono font-bold   text-gray-900">
+  <div class="mb-4">
+    <label 
+      :for="id" 
+      :class="[
+        'block mb-2 text-sm font-medium', 
+        theme === 'dark' ? 'text-white' : 'text-gray-700'
+      ]"
+    >
       {{ label }}
     </label>
-    <input
-      :id="id"
-      :type="type"
-      :value="modelValue"
-      @input="updateValue($event.target.value)" 
-      :placeholder="placeholder"
-      :class="[
-        'tracking-wide mt-2 block w-full px-4 py-3 rounded-lg border border-gray-300 bg-gray-50 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-purple-600 shadow-md transition-all duration-300 ease-in-out',
-        error ? 'border-red-500 focus:ring-red-500' : ''
-      ]"
-    />
-    <p v-if="error" class="mt-1 text-sm font-exo text-red-500">{{ error }}</p>
+    
+    <div class="relative">
+      <div v-if="icon" class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+        <i :class="`fas fa-${icon} text-gray-400`"></i>
+      </div>
+      
+      <input 
+        :type="type" 
+        :id="id" 
+        :value="modelValue"
+        @input="$emit('update:modelValue', $event.target.value)"
+        @blur="$emit('blur')" 
+        :placeholder="placeholder"
+        :class="[
+          'w-full rounded-lg focus:outline-none transition duration-300',
+          icon ? 'pl-4' : 'pl-4',
+          theme === 'dark' 
+            ? 'bg-white/10 backdrop-blur-sm border border-white/20 text-white placeholder-gray-300 focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50' 
+            : 'border border-gray-200 text-gray-900 focus:border-purple-600 focus:ring-1 focus:ring-purple-600',
+          error ? (theme === 'dark' ? 'border-red-500/50 focus:border-red-500' : 'border-red-500')  : ''
+        ]"
+        class="py-3 px-2"
+      />
+    </div>
+    
+    <p v-if="error" class="mt-2 text-sm" :class="theme === 'dark' ? 'text-red-400' : 'text-red-600'">{{ error }}</p>
   </div>
 </template>
