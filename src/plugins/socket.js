@@ -1,6 +1,6 @@
 import { io } from "socket.io-client";
 
-const socket = io(VITE_API_URL || "http://localhost:3002",{
+const socket = io(import.meta.env.VITE_API_URL || "http://localhost:3002",{
     withCredentials: true,
     transports: ["websocket"],
     autoConnect: false,
