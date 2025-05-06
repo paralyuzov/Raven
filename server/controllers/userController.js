@@ -42,13 +42,34 @@ exports.uploadAvatar = [
         return res.status(400).json({ message: "No file uploaded" });
       }
       
-      const avatarUrl = `/uploads/avatars/${req.file.filename}`;
+      const userId = req.user.id || req.user._id;
+      console.log("Updating avatar for user ID:", userId);
       
-      await User.findByIdAndUpdate(req.user._id, { avatar: avatarUrl });
+      const avatarUrl = `/uploads/avatars/${req.file.filename}`;
+      console.log("New avatar URL:", avatarUrl);
+      
+      const updatedUser = await User.findByIdAndUpdate(
+        userId, 
+        { avatar: avatarUrl },
+        { new: true } 
+      );
+      
+      if (!updatedUser) {
+        console.error("Failed to update user with avatar URL, user not found");
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      console.log("Updated user:", updatedUser.firstName, "with avatar:", updatedUser.avatar);
       
       res.status(200).json({
         message: "Avatar uploaded successfully",
-        avatarUrl: avatarUrl
+        avatarUrl: avatarUrl,
+        user: {
+          id: updatedUser._id,
+          firstName: updatedUser.firstName,
+          lastName: updatedUser.lastName,
+          avatar: updatedUser.avatar
+        }
       });
     } catch (error) {
       console.error("Avatar upload error:", error);
