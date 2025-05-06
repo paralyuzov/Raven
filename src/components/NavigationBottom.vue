@@ -7,7 +7,7 @@ import { faBell } from '@fortawesome/free-solid-svg-icons';
 import { useAuthStore } from '../stores/authStore';
 import { ref,watch, onMounted } from 'vue';
 import NotificationModal from './ui/NotificationModal.vue';
-import FindUsers from './findUsers.vue';
+import FindUsers from './FindUsers.vue';
 import socket from '../plugins/socket';
 
 const authStore = useAuthStore();
