@@ -7,8 +7,9 @@ const router = express.Router();
 const COOKIE_OPTIONS = {
   httpOnly: true,
   secure: process.env.NODE_ENV === "production",
-  sameSite: "Strict",
+  sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax", 
   maxAge: 24 * 60 * 60 * 1000,
+  domain: process.env.NODE_ENV === "production" ? process.env.COOKIE_DOMAIN : undefined
 };
 
 router.post("/register", async (req, res) => {
