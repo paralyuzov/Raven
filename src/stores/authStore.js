@@ -30,6 +30,11 @@ export const useAuthStore = defineStore("authStore", {
       try {
         const response = await axios.post("/auth/login", credentials);
         this.user = response.data.user;
+        
+        if (response.data.token) {
+          localStorage.setItem('auth_token', response.data.token);
+        }
+        
         return response.data;
       } catch (error) {
         this.error = error.response?.data?.error || "Login failed";
@@ -43,6 +48,8 @@ export const useAuthStore = defineStore("authStore", {
       try {
         await axios.post("/auth/logout");
         this.user = null;
+        
+        localStorage.removeItem('auth_token');
 
         const contactStore = useContactsStore();
         contactStore.$reset();
